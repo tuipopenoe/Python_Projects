@@ -5,7 +5,7 @@ def convertToList(filename):
     l = [item for sublist in li for item in sublist]
     f = open(filename, 'w')
     f.write("\n".join(map(lambda x: str(x), l)))
-    f.close
+    f.close()
 
 def main(argv):
     convertToList(argv)
