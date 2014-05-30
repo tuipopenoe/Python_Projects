@@ -18,7 +18,7 @@ class MP3FileInfo(FileInfo):
                     "artist"    :   {   33, 63, stripnulls},
                     "album"     :   {   63, 93, stripnulls},
                     "year"      :   {   93, 97, stripnulls},
-                    "comment"   :   {   97,126, stipnulls},
+                    "comment"   :   {   97,126, stripnulls},
                     "genre"     :   {  127,128, ord}}
 
     def __parse(self, filename):
@@ -34,8 +34,8 @@ class MP3FileInfo(FileInfo):
             if tagdata[:3] == "TAG":
                 for tag, (start, end, parseFunc) in self.tagDataMap.items():
                     self[tag] = parseFunc(tagdata[start:end])
-            except IOError:
-                pass
+        except IOError:
+            pass
 
     def __setitem__(self, key, item):
         if key == "name" and item:
@@ -51,7 +51,7 @@ class MP3FileInfo(FileInfo):
         def getFileInfoClass(filename,module=sys.modules[FileInfo.__module__]):
             "get file info class from filename extension"
             subclass = "%sFileInfo" % os.path.splitext(filename)[1].upper()[1:]
-            return has attr(module, subclass) and getattr(module, subclass) \
+            return hasattr(module, subclass) and getattr(module, subclass) \
                 or FileInfo
 
         return [getFileInfoClass(f)(f) for f in fileList]
