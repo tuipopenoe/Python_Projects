@@ -66,6 +66,70 @@ class NFA(object):
                     dfa.set_default_transition(current, input, new_state)
         return dfa
 
+class DFA(object):
+    def __init__(self, start_state):
+        self.start_state = start_state
+        self.transitions = {}
+        self.defaults = {}
+        self.final_states = set{}
+
+    def add_transition(self, src, input, dest):
+        self.transitions.setdefault(src, {})[input] = dest
+
+    def set_default_transition(self, src, dest):
+        self.defaults[src] = dest
+
+    def add_final_state(self, state):
+        self.final_states.add(state)
+
+    def is_final(self, state):
+        return state in self.final_states
+
+    def next_state(self, src, input):
+        state_transitions = self.transitions.get(src, {})
+        return state_transitions.get(input, self.defaults.get(src, None))
+
+    def next_valid_string(self, input):
+        state = self.start_state
+        stack = []
+
+        # Evaluate DFA as far as possible
+        for i, x in enumerate(input):
+            stack.append(input[:i], state, x))
+            state = self.next_state(state, x)
+            if not state:
+                break;
+            else:
+                stack.append((input[:i+1], state, None))
+
+            # Input already valid word
+            if self.is_final(state):
+                return input
+
+            while stack:
+                path, state, x = stack.pop()
+                x = self.find_next_edge(state, x)
+                if x:
+                    path += x
+                    state = self.next_state(state, x)
+                    if self.is_final(state):
+                        return path
+                    stack.append((path, state, None))
+            return None
+
+    def find_next_edge(self, s, x):
+        if x is None:
+            x = u'\0'
+        else:
+            x = unichr(ord(x) + 1)
+        state_transitions = self.transitions.get(s, {})
+        if x in state_transitions or s in self.defaults:
+            return x
+        labels = sorted(state_transitions.keys())
+        pos = bisect.bisect_left(labels, x)
+        if pos < len(labels):
+            return labels[pos]
+        return None
 
 def levenshtein_automata(term, k):
     nfa = NFA((0, 0))
@@ -85,3 +149,25 @@ def levenshtein_automata(term, k):
             nfa.add_transition((len(term), e), NFA.ANY, (len(term), e+1))
         nfa.add_final_state((len(term), e))
     return nfa
+
+def find_all_matches(word, k, lookup_func):
+    """Uses lookup_func to find all words within levenshtein distance k of word
+
+    Args:
+        word: word to look up
+        k: maximum edit distance
+        lookup_func: single argument function that returns the first word in 
+            the database that is greater than or equal to the input argument.
+    Returns:
+        Every matching word within levenshtein distance k from the database
+    """
+    lev = levenshtein_automate(word, k).to_dfa()
+    match = lev.next_valid_string(u'\0')
+    while match:
+        next = lookup_func(match)
+        if not next:
+            return
+        if match == next:
+            yield match
+            next = next + u'\0'
+        match = lev.next_valid_string(next)
