@@ -38,4 +38,11 @@ def bfs(g, start):
                 nbr.setPred(currentVert)
                 vertQueue.enqueue(nbr)
         currentVert.setColor('black')
-        
+
+def traverse(y):
+    x = y
+    while (x.getPred()):
+        print(x.getId())
+        x = x.getPred()
+
+traverse(g.getVertex('sage'))
