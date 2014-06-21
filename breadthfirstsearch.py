@@ -6,7 +6,7 @@ import queue
 
 def buildGraph(wordFile):
     d = {}
-    g = Graph()
+    g = graph.Graph()
     wfile = open(wordFile, 'r')
     # create buckets of words that differ by one letter
     for line in wfile:
@@ -20,8 +20,9 @@ def buildGraph(wordFile):
     # add vertices and edges for words in the same bucket
     for bucket in d.keys():
         for word1 in d[bucket]:
-            if word1 != word2:
-                g.addEdge(word1, word2)
+            for word2 in d[bucket]:
+                if word1 != word2:
+                    g.addEdge(word1, word2)
     return g
 
 def bfs(g, start):
@@ -44,5 +45,3 @@ def traverse(y):
     while (x.getPred()):
         print(x.getId())
         x = x.getPred()
-
-traverse(g.getVertex('sage'))

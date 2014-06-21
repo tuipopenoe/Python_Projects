@@ -3,6 +3,7 @@
 
 import sys
 import os
+import random
 import unittest
 
 class Graph:
@@ -100,6 +101,25 @@ class adjGraphTests(unittest.TestCase):
         self.tGraph = Graph()
 
     def testMakeGraph(self):
+        vert1 = 0
+        vert2 = 0
+        cost = 0
+
+        for i in range(10):
+            g.addVertex(i)
+
+        print(g.vertList)
+
+        for i in range(10):
+            vert1 = random.randint(0,9)
+            vert2 = random.randint(0,9)
+            if(vert1 != vert2):
+                cost = random.randint(0,9)
+                g.addEdge(vert1, vert2, )
+
+
+
+    def testMakeGraphFromFile(self):
         gFile = open("test.dat")
         for line in gFile:
             fVertex, tVertex = line.split('|')
